@@ -6,6 +6,16 @@
 
 using namespace std;
 
+string readQuote(const string &input, size_t &pos);
+
+string readOpenClose(const string &input, size_t &pos, char open_c, char close_c);
+
+string readUntilComma(const string &input, size_t &pos);
+
+string readValue(const string &input, size_t &pos);
+
+
+
 map<string, string> json2Map(string input);
 
 string map2Json(const map<string, string> &data);

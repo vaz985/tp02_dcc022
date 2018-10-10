@@ -1,5 +1,54 @@
 #include "tools.h"
 
+const set<char> ignorable = {'\n', ' ', ',', '\t', ':'};
+
+string readQuote(const string &input, size_t &pos) {
+	while(ignorable.count(input[pos])) pos++;
+	assert(input[pos++] == '"');
+	string ret;
+	while(true) {
+		if(input[pos] == '"' and input[pos - 1] != '\\') break;
+		ret.push_back(input[pos++]);
+	}
+	pos++;
+	return ret;
+}
+
+string readOpenClose(const string &input, size_t &pos, char open_c, char close_c) {
+	string ret;
+	assert(input[pos] == open_c);
+	while(true) {
+		ret.push_back(input[pos]);
+		pos++;
+		if(input[pos - 1] == close_c) break;
+	}
+	return ret;
+}
+
+string readUntilComma(const string &input, size_t &pos) {
+	string ret;
+	while(true) {
+		if(pos == input.size() or input[pos] == ',') break;
+		ret.push_back(input[pos]);
+		pos++;
+	}
+	if(pos < input.size())
+		pos++;
+}
+
+string readValue(const string &input, size_t &pos) {
+	while(input[pos] == ' ' or input[pos] == '\n' or input[pos] == '\t') pos++;
+	if(input[pos] == '[') return readOpenClose(input, pos, '[', ']');
+	else if(input[pos] == '{') return readOpenClose(input, pos, '{', '}');
+	else if(input[pos] == '"') {
+		string ret = readQuote(input, pos);
+		ret = "\"" + ret + "\"";
+		return ret;
+	}
+	else {
+		return readUntilComma(input, pos);
+	}
+}
 
 map<string, string> json2Map(string input) {
 	input = input.substr(input.find('{') + 1);
@@ -12,43 +61,24 @@ map<string, string> json2Map(string input) {
 	string value;
 	size_t pos = 0;
 	bool quote_open = false;
-	bool getting_key = true;
 	
-	set<char> ignorable = {'\n', ' ', ',', '\t', ':'};
 
 	while(pos < input.size()) {
-		if(!quote_open and (ignorable.count(input[pos]))) {
+		if(ignorable.count(input[pos])) {
 			pos++;
 			continue;
 		}
-		if(input[pos] == '"') {
-			if(pos == 0 or input[pos - 1] != '\\') {
-				if(quote_open) {
-					quote_open = false;
-					if(!getting_key) {
-						data[key] = value;
-						key.clear();
-						value.clear();
-						getting_key = true;
-					}
-					else {
-						getting_key = false;
-					}
-				}
-				else {
-					quote_open = true;
-				}
-				pos++;
-				continue;
-			}
-		}
-		assert(quote_open);
-		if(getting_key) key.push_back(input[pos]);
-		else value.push_back(input[pos]);
+		key = readQuote(input, pos);
+		
+		while(input[pos] != ':') pos++;
 		pos++;
+		
+		value = readValue(input, pos);
+		data[key] = value;
 	}
 	return data;
 }
+
 
 string map2Json(const map<string, string> &data) {
 	string json;
@@ -56,9 +86,9 @@ string map2Json(const map<string, string> &data) {
 	for(auto p : data) {
 		json += "\n\t\"";
 		json += p.first;
-		json += "\": \"";
+		json += "\": ";
 		json += p.second;
-		json += "\",";
+		json += ",";
 	}
 	json.pop_back();
 	json += "\n}";
