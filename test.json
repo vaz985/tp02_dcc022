@@ -1,0 +1,7 @@
+{
+	"type": "data",
+	"source": "127.0.1.2",
+	"destination": "127.0.1.1",
+	"payload": "{\"destination\": \"127.0.1.2\", \"type\":
+	\"trace\", ...}"
+}
