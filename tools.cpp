@@ -61,7 +61,6 @@ map<string, string> json2Map(string input) {
 	string value;
 	size_t pos = 0;
 	bool quote_open = false;
-	
 
 	while(pos < input.size()) {
 		if(ignorable.count(input[pos])) {
@@ -78,7 +77,6 @@ map<string, string> json2Map(string input) {
 	}
 	return data;
 }
-
 
 string map2Json(const map<string, string> &data) {
 	string json;
@@ -112,3 +110,13 @@ vector< pair<string, string> > json2Vec(const string &input) {
 	return ret_data;
 }
 
+void catHop(map<string, string> &data, string ip) {
+  if(data["type"] != string("\"trace\"")) {
+    cerr << "Concat in wrong json type" << endl;
+    exit(1);
+  }
+  string new_hop = data["hops"];  
+  new_hop[new_hop.size()-1] = ',';
+  new_hop += " \"" + ip + "\"]";
+  data["hops"] = new_hop;
+}

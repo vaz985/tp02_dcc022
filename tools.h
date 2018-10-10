@@ -24,4 +24,6 @@ vector< pair<string, string> > json2Vec(const string &input);
 
 string vec2Json(const vector< pair<string, string> > &data);
 
+void catHop(map<string, string>& jsonMap, string ip);
+
 #endif
