@@ -13,8 +13,11 @@ map<string, string> json2Map(string input) {
 	size_t pos = 0;
 	bool quote_open = false;
 	bool getting_key = true;
+	
+	set<char> ignorable = {'\n', ' ', ',', '\t', ':'};
+
 	while(pos < input.size()) {
-		if(!quote_open and (input[pos] == ' ' or input[pos] == '\n' or input[pos] == ',' or input[pos] == '\t' or input[pos] == ':')) {
+		if(!quote_open and (ignorable.count(input[pos]))) {
 			pos++;
 			continue;
 		}
