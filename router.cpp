@@ -1,4 +1,4 @@
-#include <bits/stdc++.h>
+#include "tools.h"
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -7,8 +7,6 @@
 
 #define PORT 55151
 #define SOCKETTO 0.5
-
-using namespace std;
 
 class Router {
   public:
@@ -80,7 +78,33 @@ class Router {
       cout << "Period: " << this->period << endl;
     }
 
+		void treatInput() {
+			string op_type;
+			cin >> op_type;
+			if(op_type == "add") {
+				string ip;
+				cin >> ip;
+				int weight;
+				cin >> weight;
+				addEdge(ip, weight);
+			}
+			else if(op_type == "del"){
+				string ip;
+				cin >> ip;
+				delEdge(ip);
+			}
+			else {
+				cerr << op_type << " is not a valid operation.\n";
+			}
+		}
+
   private:
+		
+		map<string, int> edges;
+
+		// For each destination, for each cost, there is a list of possible first edges.
+		map<string, map<int, vector<string> > routes;
+		
     void setupSocket() {
       this->udp_socket = socket(AF_INET, SOCK_DGRAM, 0); 
 
@@ -92,6 +116,22 @@ class Router {
       bind(this->udp_socket, (struct sockaddr *)&this->router_addr, 
            sizeof(struct sockaddr));
     };
+
+		void addEdge(string ip, int weight) {
+			if(edges.count(ip)) {
+				cerr << "Add to existing ip " << ip << endl;
+				exit(1);
+			}
+			edges[ip] = weight;
+		}
+
+		void delEdge(string ip) {
+			if(!edges.count(ip)) {
+				cerr << "Trying to delete non-existent ip " << ip << endl;
+				exit(1);
+			}
+			edges.erase(ip);
+		}
 };
 
 int main(int argc, char* argv[]) {
