@@ -120,3 +120,44 @@ void catHop(map<string, string> &data, string ip) {
   new_hop += " \"" + ip + "\"]";
   data["hops"] = new_hop;
 }
+
+
+void sendMsg(const string &msg, const string &ip, int udp_socket, uint16_t port) {
+	struct sockaddr_in to_addr;
+	to_addr.sin_family = AF_INET;
+	to_addr.sin_port = htons(port);
+
+	inet_aton(ip.c_str(), (struct in_addr*) &to_addr.sin_addr.s_addr);
+	
+	static char c_msg[MAX_SZ];
+
+	char *pos = &c_msg[0];
+	uint32_t sz = htonl((uint32_t)msg.size());
+
+	memcpy(pos, &sz, sizeof(uint32_t));
+	pos += sizeof(uint32_t);
+
+	memcpy(pos, msg.c_str(), (uint32_t)msg.size());
+
+	sendto(udp_socket, &c_msg[0], (uint32_t)msg.size() + sizeof(uint32_t), 0, (struct sockaddr *)&to_addr, sizeof(struct sockaddr_in));
+}
+
+string recvMsg(int udp_socket) {
+	struct sockaddr_in from_addr;
+	static char buf[MAX_SZ];
+	uint32_t addr_len = sizeof(struct sockaddr_in);
+
+	int recvlen = recvfrom(udp_socket, buf, MAX_SZ, 0, (struct sockaddr *)&from_addr, &addr_len);
+	if(recvlen <= 0) return "";
+
+	uint32_t sz;
+	memcpy(&sz, buf, sizeof(sz));
+	sz = ntohl(sz);
+
+	static char c_msg[MAX_SZ];
+	memcpy(&c_msg, buf + sizeof(sz), sz);
+	c_msg[sz] = '\0';
+
+	string msg = c_msg;
+	return msg;
+}

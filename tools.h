@@ -2,7 +2,12 @@
 #define TOOLS_H
 #include<bits/stdc++.h>
 
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
 
+#define MAX_SZ 65536
 
 using namespace std;
 
@@ -25,5 +30,9 @@ vector< pair<string, string> > json2Vec(const string &input);
 string vec2Json(const vector< pair<string, string> > &data);
 
 void catHop(map<string, string>& jsonMap, string ip);
+
+void sendMsg(const string &msg, const string &ip, int udp_socket, uint16_t port);
+
+string recvMsg(int udp_socket);
 
 #endif
