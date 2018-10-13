@@ -6,8 +6,8 @@
 #include <netdb.h>
 #include <unistd.h>
 
-const double SOCKETTO 0.5
-const uint16_t PORT 55151
+const double SOCKETTO = 0.5;
+const uint16_t PORT = 55151;
 
 class Router {
   public:
@@ -89,14 +89,15 @@ class Router {
 		}
 
     void send_update_msg() {
-      
-    }
-
-    void recv_msg() {
+      map<string, string> distances = table.get_distances();
+      vector<string> destination_ip = table.get_neighbours();
+      for(auto dest_ip : destination_ip) {
+        string json_msg = make_update_msg(this->ip, dest_ip, distances);
+        this->send_msg(json_msg, dest_ip);
+      }
     }
 
   private:
-
     static map<string, string> parse_args(vector<string> &args) {
       string addr_cmd    = "--addr";
       string upd_cmd     = "--update-period";
@@ -136,15 +137,34 @@ class Router {
       
       bind(this->udp_socket, (struct sockaddr *)&this->router_addr, 
            sizeof(struct sockaddr));
-    };
+    }
 
+    void send_msg(const string &msg, const string &ip) {
+	    struct sockaddr_in to_addr;
+	    to_addr.sin_family = AF_INET;
+	    to_addr.sin_port = htons(PORT);
+
+	    inet_aton(ip.c_str(), (struct in_addr*) &to_addr.sin_addr.s_addr);
+	    
+	    static char c_msg[MAX_SZ];
+
+	    char *pos = &c_msg[0];
+	    uint32_t sz = htonl((uint32_t)msg.size());
+
+	    memcpy(pos, &sz, sizeof(uint32_t));
+	    pos += sizeof(uint32_t);
+
+	    memcpy(pos, msg.c_str(), (uint32_t)msg.size());
+
+	    sendto(this->udp_socket, &c_msg[0], (uint32_t)msg.size() + sizeof(uint32_t), 0, (struct sockaddr *)&to_addr, sizeof(struct sockaddr_in));
+    }
 };
 
 int main(int argc, char* argv[]) {
   Router r(argc, argv);
   r.print_configs();
   while(1) {
-    r.recv_msg();
+    //r.recv_msg();
   }
   return 0;
 }
