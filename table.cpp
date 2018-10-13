@@ -24,14 +24,14 @@ void Table::update_distance_list() {
     this->distances[it.first] = it.second;
 }
 
-vector<pair<string, double>> Table::get_routes_best_weights() {
-  vector<pair<string, double>> best_weights;
+vector<pair<string, string>> Table::get_routes_best_weights() {
+  vector<pair<string, string>> best_weights;
   for(auto it : this->known_routes) {
     string ip = it.first;
     set<pair<double, string>> ip_known_routes = it.second;
     double best_weight = ip_known_routes.begin()->first;
 
-    pair<string, double> route(ip, best_weight);
+    pair<string, string> route(ip, to_string(best_weight));
     best_weights.push_back(route);
   }
   return best_weights;

@@ -12,7 +12,7 @@ class Table {
       return this->neighbours_ip;
     }
 
-    map<string, double> get_distances() {
+    map<string, string> get_distances() {
       return this->distances;
     }
 
@@ -23,9 +23,9 @@ class Table {
     // ip -> [(weight, neighbour), ...]
     map<string, set<pair<double, string>>> known_routes;
     // ip -> weight
-    map<string, double> distances;
+    map<string, string> distances;
 
-    vector<pair<string, double>> get_routes_best_weights();
+    vector<pair<string, string>> get_routes_best_weights();
 
 };
 #endif
