@@ -8,7 +8,6 @@
 #include <unistd.h>
 
 #define MAX_SZ 65536
-const uint16_t PORT 55151
 
 using namespace std;
 
@@ -32,8 +31,10 @@ string vec2Json(const vector< pair<string, string> > &data);
 
 void catHop(map<string, string>& jsonMap, string ip);
 
-void sendMsg(const string &msg, const string &ip, int udp_socket);
+//void sendMsg(const string &msg, const string &ip, int udp_socket);
 
 string recvMsg(int udp_socket);
+
+string make_update_msg(string source, string dest, const map<string, string> &distances);
 
 #endif

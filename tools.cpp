@@ -122,26 +122,6 @@ void catHop(map<string, string> &data, string ip) {
 }
 
 
-void sendMsg(const string &msg, const string &ip, int udp_socket) {
-	struct sockaddr_in to_addr;
-	to_addr.sin_family = AF_INET;
-	to_addr.sin_port = htons(PORT);
-
-	inet_aton(ip.c_str(), (struct in_addr*) &to_addr.sin_addr.s_addr);
-	
-	static char c_msg[MAX_SZ];
-
-	char *pos = &c_msg[0];
-	uint32_t sz = htonl((uint32_t)msg.size());
-
-	memcpy(pos, &sz, sizeof(uint32_t));
-	pos += sizeof(uint32_t);
-
-	memcpy(pos, msg.c_str(), (uint32_t)msg.size());
-
-	sendto(udp_socket, &c_msg[0], (uint32_t)msg.size() + sizeof(uint32_t), 0, (struct sockaddr *)&to_addr, sizeof(struct sockaddr_in));
-}
-
 string recvMsg(int udp_socket) {
 	struct sockaddr_in from_addr;
 	static char buf[MAX_SZ];
@@ -160,4 +140,13 @@ string recvMsg(int udp_socket) {
 
 	string msg = c_msg;
 	return msg;
+}
+
+string make_update_msg(string source, string dest, const map<string, string> &distances) {
+  map<string, string> data;
+  data[string("type")]   = string("update");
+  data[string("source")] = source;
+  data[string("dest")]   = dest;
+  data[string("distances")] = map2Json(distances);
+  return map2Json(data);
 }
