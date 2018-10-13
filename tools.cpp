@@ -122,10 +122,10 @@ void catHop(map<string, string> &data, string ip) {
 }
 
 
-void sendMsg(const string &msg, const string &ip, int udp_socket, uint16_t port) {
+void sendMsg(const string &msg, const string &ip, int udp_socket) {
 	struct sockaddr_in to_addr;
 	to_addr.sin_family = AF_INET;
-	to_addr.sin_port = htons(port);
+	to_addr.sin_port = htons(PORT);
 
 	inet_aton(ip.c_str(), (struct in_addr*) &to_addr.sin_addr.s_addr);
 	
