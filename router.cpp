@@ -51,6 +51,7 @@ class Router {
       this->ip_network = ntohl(this->ip_host);
       this->period     = stod(args[upd_cmd]);
       this->setup_socket();
+      this->table.set_my_ip(this->ip);
       this->table.add_edge(this->ip, 0.0);
       if(args.count(startup_cmd)) {
         // Run comands
