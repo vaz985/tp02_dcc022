@@ -4,6 +4,8 @@
 using namespace std;
 class Table {
   public:
+    string router_ip;
+
     void add_edge(string ip, int weight);
 		void del_edge(string ip);
     void update_distance_list();
@@ -16,6 +18,10 @@ class Table {
       return this->distances;
     }
 
+    void set_my_ip(string ip) {
+      this->router_ip = ip;
+    }
+
   private:
     vector<string> neighbours_ip;
     // neighbour -> weight
@@ -26,6 +32,8 @@ class Table {
     map<string, string> distances;
 
     vector<pair<string, string>> get_routes_best_weights();
+
+    void add_route(string dest_ip, string source_ip, double weight);
 
 };
 #endif
