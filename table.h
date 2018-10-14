@@ -10,7 +10,7 @@ class Table {
 		void del_edge(string ip);
     void update_distance_list();
 
-    vector<string> get_neighbours() {
+    set<string> get_neighbours() {
       return this->neighbours_ip;
     }
 
@@ -23,17 +23,17 @@ class Table {
     }
 
   private:
-    vector<string> neighbours_ip;
+    set<string> neighbours_ip;
     // neighbour -> weight
-    map<string, double> neighbours_router_weight;
+    map<string, int> neighbours_router_weight;
     // ip -> [(weight, neighbour), ...]
-    map<string, set<pair<double, string>>> known_routes;
+    map<string, set<pair<int, string>>> known_routes;
     // ip -> weight
     map<string, string> distances;
 
     vector<pair<string, string>> get_routes_best_weights();
 
-    void add_route(string dest_ip, string source_ip, double weight);
+    void add_route(string dest_ip, string source_ip, int weight);
 
 };
 #endif

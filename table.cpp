@@ -5,7 +5,7 @@ void Table::add_edge(string ip, int weight) {
     cerr << "Add to existing ip " << ip << endl;
     exit(1);
   }
-  neighbours_ip.push_back(ip);
+  neighbours_ip.insert(ip);
   neighbours_router_weight[ip] = weight;
   this->add_route(ip, this->router_ip, weight);
 }
@@ -30,8 +30,8 @@ vector<pair<string, string>> Table::get_routes_best_weights() {
   vector<pair<string, string>> best_weights;
   for(auto it : this->known_routes) {
     string ip = it.first;
-    set<pair<double, string>> ip_known_routes = it.second;
-    double best_weight = ip_known_routes.begin()->first;
+    set<pair<int, string>> &ip_known_routes = it.second;
+    int best_weight = ip_known_routes.begin()->first;
 
     pair<string, string> route(ip, to_string(best_weight));
     best_weights.push_back(route);
@@ -39,15 +39,15 @@ vector<pair<string, string>> Table::get_routes_best_weights() {
   return best_weights;
 }
 
-void Table::add_route(string dest_ip, string source_ip, double weight) {
+void Table::add_route(string dest_ip, string source_ip, int weight) {
   // find a better name
   auto target_ip = this->known_routes.find(dest_ip);
   if(target_ip != this->known_routes.end()) {
-    target_ip->second.insert( pair<double, string>(weight, source_ip) );
+    target_ip->second.insert( pair<int, string>(weight, source_ip) );
   }
   else {
-    set<pair<double, string>> routes;
-    routes.insert( pair<double, string>(weight, source_ip) ); 
+    set<pair<int, string>> routes;
+    routes.insert( pair<int, string>(weight, source_ip) ); 
     this->known_routes[dest_ip] = routes;
   }
 }

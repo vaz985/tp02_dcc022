@@ -5,6 +5,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <thread>
 
 const double SOCKETTO = 0.5;
 const uint16_t PORT = 55151;
@@ -52,7 +53,7 @@ class Router {
       this->period     = stod(args[upd_cmd]);
       this->setup_socket();
       this->table.set_my_ip(this->ip);
-      this->table.add_edge(this->ip, 0.0);
+      this->table.add_edge(this->ip, 0);
       if(args.count(startup_cmd)) {
         // Run comands
       }
@@ -68,7 +69,6 @@ class Router {
       cout << "Period: " << this->period << endl;
     }
 
-
 		void treat_input() {
 			string op_type;
 			cin >> op_type;
@@ -77,12 +77,12 @@ class Router {
 				cin >> ip;
 				int weight;
 				cin >> weight;
-				//addEdge(ip, weight);
+				table.add_edge(ip, weight);
 			}
 			else if(op_type == "del"){
 				string ip;
 				cin >> ip;
-				//delEdge(ip);
+				table.del_edge(ip);
 			}
 			else {
 				cerr << op_type << " is not a valid operation.\n";
@@ -91,12 +91,22 @@ class Router {
 
     void send_update_msg() {
       map<string, string> distances = table.get_distances();
-      vector<string> destination_ip = table.get_neighbours();
+      set<string> destination_ip = table.get_neighbours();
       for(auto dest_ip : destination_ip) {
         string json_msg = make_update_msg(this->ip, dest_ip, distances);
         this->send_msg(json_msg, dest_ip);
       }
     }
+
+		void handle_msg(string &s) {
+			map<string, string> data = json2Map(s);
+			if(!data.count("type")) {
+				cerr << "Unexpected json format. There's no type information.\n";
+				exit(1);
+			}
+			string type = data["type"];
+			//Switch cases of type
+		}
 
   private:
     static map<string, string> parse_args(vector<string> &args) {
@@ -161,11 +171,23 @@ class Router {
     }
 };
 
+void IO_handler(Router &r) {
+	while(true) {
+		r.treat_input();
+	}
+}
+
 int main(int argc, char* argv[]) {
   Router r(argc, argv);
   r.print_configs();
+	
+	thread t1(IO_handler, ref(r));
+  string s;
   while(1) {
-    //r.recv_msg();
-  }
+		s = recvMsg(r.udp_socket);
+		if(s.size()) r.handle_msg(s);
+	}
+
+	t1.join();
   return 0;
 }
