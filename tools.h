@@ -37,4 +37,10 @@ string recvMsg(int udp_socket);
 
 string make_update_msg(string source, string dest, const map<string, string> &distances);
 
+string make_data_msg(string msg, string source, string dest);
+
+string make_trace_msg(string source, string dest);
+
+void dequotize(string &s);
+
 #endif

@@ -84,9 +84,19 @@ class Router {
 				cin >> ip;
 				table.del_edge(ip);
 			}
+			else if(op_type == "trace") {
+				string ip;
+				cin >> ip;
+				send_trace_msg(ip);
+			}
 			else {
 				cerr << op_type << " is not a valid operation.\n";
 			}
+		}
+
+		void send_trace_msg(string dest_ip) {
+			string msg = make_trace_msg(this->ip, dest_ip);
+			send_indirect_msg(msg, dest_ip);
 		}
 
     void send_update_msg() {
@@ -100,6 +110,46 @@ class Router {
       }
     }
 
+		void send_data_msg(string msg, string dest_ip) {
+			string data = make_data_msg(msg, this->ip, dest_ip);
+			send_indirect_msg(data, dest_ip);
+		}
+
+		void handle_upd_msg(map<string, string> &data) {
+			map<string, string> distances = json2Map(data["distances"]);
+			string source_ip = data["source"];
+			dequotize(source_ip);
+			for(auto p : distances) {
+				int weight = stoi(p.second);
+				table.add_route(p.first, source_ip, weight);
+			}
+		}
+
+		void handle_trace_msg(map<string, string> data) {
+			string dest_ip = data["destination"];
+			string source_ip = data["source"];
+			dequotize(source_ip);
+			dequotize(dest_ip);
+			catHop(data, this->ip);
+			if(dest_ip == this->ip) {
+				send_data_msg(map2Json(data), source_ip);
+			}
+			else {
+				send_indirect_msg(map2Json(data), dest_ip);
+			}
+		}
+		
+		void handle_data_msg(map<string, string> &data) {
+			string dest_ip = data["destination"];
+			dequotize(dest_ip);
+			if(dest_ip == this->ip) {
+				cout << "received data:\n" << data["payload"] << endl;
+			}
+			else {
+				send_indirect_msg(map2Json(data), dest_ip);
+			}
+		}
+
 		void handle_msg(string &s) {
 			map<string, string> data = json2Map(s);
 			if(!data.count("type")) {
@@ -107,7 +157,16 @@ class Router {
 				exit(1);
 			}
 			string type = data["type"];
-			//Switch cases of type
+			
+			if(type == "\"update\"") {
+				handle_upd_msg(data);
+			}
+			else if(type == "\"trace\"") {
+				handle_trace_msg(data);
+			}
+			else if(type == "\"data\"") {
+				handle_data_msg(data);
+			}
 		}
 
   private:
@@ -147,7 +206,7 @@ class Router {
       this->router_addr.sin_family = AF_INET;
       this->router_addr.sin_port   = this->port_network;
       //this->router_addr.sin_addr.s_addr = this->ip_network;
-     this->router_addr.sin_addr = *((struct in_addr *)host->h_addr);
+     	this->router_addr.sin_addr = *((struct in_addr *)host->h_addr);
       
       // Add timeout
       struct timeval tv;
@@ -178,6 +237,11 @@ class Router {
 
 	    cout << sendto(this->udp_socket, &c_msg[0], (uint32_t)msg.size() + sizeof(uint32_t), 0, (struct sockaddr *)&to_addr, sizeof(struct sockaddr_in)) << endl;
     }
+
+		void send_indirect_msg(const string &msg, const string &ip) {
+			string neighbour_ip = table.get_first_step(ip);
+			this->send_msg(msg, neighbour_ip);
+		}
 };
 
 void IO_handler(Router &r) {

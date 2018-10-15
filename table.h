@@ -21,6 +21,10 @@ class Table {
     void set_my_ip(string ip) {
       this->router_ip = ip;
     }
+    
+		void add_route(string dest_ip, string source_ip, int weight);
+
+		string get_first_step(string dest_ip);
 
   private:
     set<string> neighbours_ip;
@@ -32,8 +36,6 @@ class Table {
     map<string, string> distances;
 
     vector<pair<string, string>> get_routes_best_weights();
-
-    void add_route(string dest_ip, string source_ip, int weight);
 
 };
 #endif

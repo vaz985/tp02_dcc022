@@ -148,9 +148,33 @@ string recvMsg(int udp_socket) {
 
 string make_update_msg(string source, string dest, const map<string, string> &distances) {
   map<string, string> data;
-  data[string("type")]   = string("update");
-  data[string("source")] = source;
-  data[string("dest")]   = dest;
+  data[string("type")]   = "\"update\"";
+  data[string("source")] = "\"" + source + "\"";
+  data[string("destination")]   = "\"" + dest + "\"";
   data[string("distances")] = map2Json(distances);
   return map2Json(data);
+}
+
+string make_data_msg(string msg, string source, string dest) {
+  map<string, string> data;
+  data[string("type")]   = "\"data\"";
+  data[string("source")] = "\"" + source + "\"";
+  data[string("destination")]   = "\"" + dest + "\"";
+  data[string("payload")] = msg;
+	return map2Json(data);
+}
+
+string make_trace_msg(string source, string dest) {
+  map<string, string> data;
+  data[string("type")]   = "\"trace\"";
+  data[string("source")] = "\"" + source + "\"";
+  data[string("destination")]   = "\"" + dest + "\"";
+  data[string("hops")] = "[" + data["source"] + "]";
+	return map2Json(data);
+}
+
+void dequotize(string &s) {
+	if(s.size() and s[0] == '"') {
+		s = s.substr(1, s.size() - 2);
+	}
 }
