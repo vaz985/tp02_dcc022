@@ -34,6 +34,7 @@ string readUntilComma(const string &input, size_t &pos) {
 	}
 	if(pos < input.size())
 		pos++;
+	return ret;
 }
 
 string readValue(const string &input, size_t &pos) {
@@ -61,7 +62,6 @@ map<string, string> json2Map(string input) {
 	string key;
 	string value;
 	size_t pos = 0;
-	bool quote_open = false;
 
 	while(pos < input.size()) {
 		if(ignorable.count(input[pos])) {
