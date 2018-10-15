@@ -8,6 +8,7 @@ void Table::add_edge(string ip, int weight) {
   neighbours_ip.insert(ip);
   neighbours_router_weight[ip] = weight;
   this->add_route(ip, this->router_ip, weight);
+  this->update_distance_list();
 }
 
 void Table::del_edge(string ip) {
@@ -20,8 +21,6 @@ void Table::del_edge(string ip) {
 
 void Table::update_distance_list() {
   this->distances.clear();
-  for(auto it : neighbours_router_weight)
-    this->distances[it.first] = it.second;
   for(auto it : this->get_routes_best_weights()) 
     this->distances[it.first] = it.second;
 }

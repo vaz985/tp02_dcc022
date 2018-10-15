@@ -51,6 +51,7 @@ string readValue(const string &input, size_t &pos) {
 }
 
 map<string, string> json2Map(string input) {
+  cout << input << endl;
 	input = input.substr(input.find('{') + 1);
 	while(input.back() != '}') input.pop_back();
 	input.pop_back();
@@ -73,8 +74,11 @@ map<string, string> json2Map(string input) {
 		pos++;
 		
 		value = readValue(input, pos);
+    cout << key << " -> " << value << endl;
 		data[key] = value;
 	}
+  for(auto it : data)
+    cout << it.first << " " << it.second << endl;
 	return data;
 }
 

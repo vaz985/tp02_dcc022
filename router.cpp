@@ -93,7 +93,9 @@ class Router {
       map<string, string> distances = table.get_distances();
       set<string> destination_ip = table.get_neighbours();
       for(auto dest_ip : destination_ip) {
+        if(dest_ip == this->ip) continue;
         string json_msg = make_update_msg(this->ip, dest_ip, distances);
+        cout << json_msg << endl;
         this->send_msg(json_msg, dest_ip);
       }
     }
@@ -140,11 +142,18 @@ class Router {
 
     void setup_socket() {
       this->udp_socket = socket(AF_INET, SOCK_DGRAM, 0); 
+      struct hostent *host = (struct hostent *) gethostbyname(this->ip.c_str());
 
       this->router_addr.sin_family = AF_INET;
       this->router_addr.sin_port   = this->port_network;
-      this->router_addr.sin_addr.s_addr = this->ip_network;
+      //this->router_addr.sin_addr.s_addr = this->ip_network;
+     this->router_addr.sin_addr = *((struct in_addr *)host->h_addr);
+      
       // Add timeout
+      struct timeval tv;
+      tv.tv_sec = 0;
+      tv.tv_usec = 100000;
+      setsockopt(udp_socket, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
       
       bind(this->udp_socket, (struct sockaddr *)&this->router_addr, 
            sizeof(struct sockaddr));
@@ -167,7 +176,7 @@ class Router {
 
 	    memcpy(pos, msg.c_str(), (uint32_t)msg.size());
 
-	    sendto(this->udp_socket, &c_msg[0], (uint32_t)msg.size() + sizeof(uint32_t), 0, (struct sockaddr *)&to_addr, sizeof(struct sockaddr_in));
+	    cout << sendto(this->udp_socket, &c_msg[0], (uint32_t)msg.size() + sizeof(uint32_t), 0, (struct sockaddr *)&to_addr, sizeof(struct sockaddr_in)) << endl;
     }
 };
 
@@ -183,7 +192,12 @@ int main(int argc, char* argv[]) {
 	
 	thread t1(IO_handler, ref(r));
   string s;
+  int count = 0;
   while(1) {
+    if(count++ == 20) {
+      r.send_update_msg();
+      count = 0;
+    }
 		s = recvMsg(r.udp_socket);
 		if(s.size()) r.handle_msg(s);
 	}
