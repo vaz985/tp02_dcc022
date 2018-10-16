@@ -55,7 +55,23 @@ class Router {
       this->table.set_my_ip(this->ip);
       this->table.add_edge(this->ip, 0);
       if(args.count(startup_cmd)) {
-        // Run comands
+        string filename = args[startup_cmd];
+        ifstream ifs(filename);
+        string buf, ip, op_type;
+        int weight;
+        while(ifs.good()) {
+          if(!(ifs >> op_type))
+            break;
+			    if(op_type == "add") {
+			    	ifs >> ip;
+			    	ifs >> weight;
+			    	table.add_edge(ip, weight);
+			    }
+			    else if(op_type == "del"){
+            ifs >> ip;
+			    	table.del_edge(ip);
+          }
+        }
       }
     }
 
