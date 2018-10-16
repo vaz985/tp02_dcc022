@@ -26,6 +26,8 @@ class Table {
 
 		string get_first_step(string dest_ip);
 
+    map<string, pair<int, string>> get_best_routes();
+
   private:
     set<string> neighbours_ip;
     // neighbour -> weight

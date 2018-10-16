@@ -89,6 +89,18 @@ class Router {
 				cin >> ip;
 				send_trace_msg(ip);
 			}
+      else if(op_type == "dist") {
+        map<string, string> distances = this->table.get_distances();
+        for(auto it : distances)
+          cout << it.first << ": " << it.second << endl;
+      }
+      else if(op_type == "routes") {
+        for(auto it : this->table.get_best_routes()) {
+          cout << "To: " << it.first << endl;
+          cout << "    From: " << it.second.second << endl;
+          cout << "    With cost: " << it.second.first << endl;
+        }
+      }
 			else {
 				cerr << op_type << " is not a valid operation.\n";
 			}
@@ -105,7 +117,7 @@ class Router {
       for(auto dest_ip : destination_ip) {
         if(dest_ip == this->ip) continue;
         string json_msg = make_update_msg(this->ip, dest_ip, distances);
-        cout << json_msg << endl;
+        //cout << json_msg << endl;
         this->send_msg(json_msg, dest_ip);
       }
     }
@@ -235,7 +247,7 @@ class Router {
 
 	    memcpy(pos, msg.c_str(), (uint32_t)msg.size());
 
-	    cout << sendto(this->udp_socket, &c_msg[0], (uint32_t)msg.size() + sizeof(uint32_t), 0, (struct sockaddr *)&to_addr, sizeof(struct sockaddr_in)) << endl;
+	    sendto(this->udp_socket, &c_msg[0], (uint32_t)msg.size() + sizeof(uint32_t), 0, (struct sockaddr *)&to_addr, sizeof(struct sockaddr_in));
     }
 
 		void send_indirect_msg(const string &msg, const string &ip) {

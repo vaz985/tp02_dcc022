@@ -67,3 +67,14 @@ string Table::get_first_step(string dest_ip) {
 	auto &ip_known_routes = this->known_routes[dest_ip];
 	return ip_known_routes.begin()->second;
 }
+
+map<string, pair<int, string>> Table::get_best_routes() {
+  map<string, pair<int, string>> data;
+  for(auto it : this->known_routes) {
+    string ip = it.first;
+    set<pair<int, string>> &ip_known_routes = it.second;
+    pair<int, string> route = *ip_known_routes.begin();
+    data[ip] = route;
+  }
+  return data;
+}
