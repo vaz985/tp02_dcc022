@@ -132,8 +132,8 @@ class Router {
       set<string> destination_ip = table.get_neighbours();
       for(auto dest_ip : destination_ip) {
         if(dest_ip == this->ip) continue;
+        //cout << dest_ip << endl;
         string json_msg = make_update_msg(this->ip, dest_ip, distances);
-        //cout << json_msg << endl;
         this->send_msg(json_msg, dest_ip);
       }
     }
@@ -147,10 +147,14 @@ class Router {
 			map<string, string> distances = json2Map(data["distances"]);
 			string source_ip = data["source"];
 			dequotize(source_ip);
+      //cout << "From: " << source_ip << endl;
 			for(auto p : distances) {
+        string target_ip = p.first;
 				int weight = stoi(p.second);
-				table.add_route(p.first, source_ip, weight);
+        //cout << " " << target_ip << " " << weight << endl;
+				table.add_route(target_ip, source_ip, weight);
 			}
+      //cout << "####" << endl;
 		}
 
 		void handle_trace_msg(map<string, string> data) {

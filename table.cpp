@@ -46,15 +46,19 @@ void Table::add_route(string dest_ip, string source_ip, int weight) {
 	}
 	weight += neighbours_router_weight[source_ip];
   auto target_ip = this->known_routes.find(dest_ip);
+
+  if(source_ip == this->router_ip)
+    source_ip = dest_ip;
+
   if(target_ip != this->known_routes.end()) {
     target_ip->second.insert( pair<int, string>(weight, source_ip) );
-		this->distances[dest_ip] = to_string(min(stoi(this->distances[dest_ip]), weight));
+		//this->distances[dest_ip] = to_string(min(stoi(this->distances[dest_ip]), weight));
   }
   else {
     set<pair<int, string>> routes;
     routes.insert( pair<int, string>(weight, source_ip) ); 
     this->known_routes[dest_ip] = routes;
-		this->distances[dest_ip] = weight;
+		//this->distances[dest_ip] = weight;
   }
 }
 

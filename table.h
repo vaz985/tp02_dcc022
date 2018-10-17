@@ -15,6 +15,7 @@ class Table {
     }
 
     map<string, string> get_distances() {
+      this->update_distance_list();
       return this->distances;
     }
 
