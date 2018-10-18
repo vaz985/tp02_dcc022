@@ -29,16 +29,35 @@ class Table {
 
     map<string, pair<int, string>> get_best_routes();
 
+    bool is_neighbour(string ip) {
+      return (this->neighbours_ip.find(ip)!=this->neighbours_ip.end()) ? true : false;
+    }
+
   private:
     set<string> neighbours_ip;
     // neighbour -> weight
     map<string, int> neighbours_router_weight;
-    // ip -> [(weight, neighbour), ...]
+    // source -> [(weight, neighbour), ...]
     map<string, set<pair<int, string>>> known_routes;
     // ip -> weight
     map<string, string> distances;
 
     vector<pair<string, string>> get_routes_best_weights();
+
+    map<string, int>& get_neighbours_weight() {
+      return this->neighbours_router_weight;
+    };
+
+    map<string, set<pair<int, string>>> get_routes() {
+      return this->known_routes;
+    };
+
+
+    void remove_source_route(string ip) {
+      this->known_routes.erase(ip);  
+    }
+
+    void remove_routes(string ip);
 
 };
 #endif

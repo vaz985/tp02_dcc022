@@ -11,12 +11,35 @@ void Table::add_edge(string ip, int weight) {
   this->update_distance_list();
 }
 
+void Table::remove_routes(string ip) {
+  auto n_weight = this->get_neighbours_weight();
+  if(!n_weight.count(ip))
+    this->neighbours_router_weight.erase(ip);
+  auto k_routes = this->get_routes();
+  for(auto e : k_routes) {
+    if(e.first == ip)
+      this->remove_source_route(ip);
+    else {
+      auto route_set =  e.second;
+      for(auto route_set_it : route_set) {
+        if(route_set_it.second == ip) {
+          route_set.erase(route_set_it);
+        }
+        if(route_set.empty())
+          this->remove_source_route(e.first);
+      }
+    }
+  }
+
+}
+
 void Table::del_edge(string ip) {
   if(!neighbours_router_weight.count(ip)) {
     cerr << "Trying to delete non-existent ip " << ip << endl;
     exit(1);
   }
   neighbours_router_weight.erase(ip);
+  this->remove_routes(ip);
 }
 
 void Table::update_distance_list() {
@@ -52,7 +75,6 @@ void Table::add_route(string dest_ip, string source_ip, int weight) {
 
   if(target_ip != this->known_routes.end()) {
     target_ip->second.insert( pair<int, string>(weight, source_ip) );
-		//this->distances[dest_ip] = to_string(min(stoi(this->distances[dest_ip]), weight));
   }
   else {
     set<pair<int, string>> routes;

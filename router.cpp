@@ -147,14 +147,15 @@ class Router {
 			map<string, string> distances = json2Map(data["distances"]);
 			string source_ip = data["source"];
 			dequotize(source_ip);
-      //cout << "From: " << source_ip << endl;
+      if(!this->table.is_neighbour(source_ip)) {
+        cerr << "Receiving update from invalid neighbour" << endl; 
+        return;
+      }
 			for(auto p : distances) {
         string target_ip = p.first;
 				int weight = stoi(p.second);
-        //cout << " " << target_ip << " " << weight << endl;
 				table.add_route(target_ip, source_ip, weight);
 			}
-      //cout << "####" << endl;
 		}
 
 		void handle_trace_msg(map<string, string> data) {
