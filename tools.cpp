@@ -174,3 +174,14 @@ void dequotize(string &s) {
 		s = s.substr(1, s.size() - 2);
 	}
 }
+
+string escape(const string &s) {
+	string escaped;
+	for(char c : s) {
+		if(c == '"') {
+			escaped.push_back('\\');
+		}
+		escaped.push_back(c);
+	}
+	return escaped;
+}

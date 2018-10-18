@@ -89,9 +89,22 @@ string Table::get_first_step(string dest_ip) {
 		cerr << "Can't find route to " << dest_ip << endl;
 		return "";
 	}
-	//TODO: implement load balancing here.
+	
 	auto &ip_known_routes = this->known_routes[dest_ip];
-	return ip_known_routes.begin()->second;
+	auto best_route = ip_known_routes.begin();
+	int weight = best_route->first;
+	
+	vector<string> possibilities;
+	while(best_route != ip_known_routes.end() and best_route->first == weight) {
+		possibilities.push_back(best_route->second);
+		best_route++;
+	}
+	assert(possibilities.size());
+	
+	std::mt19937 mt_rand(time(0));
+	size_t chosen = mt_rand() % possibilities.size();
+	
+	return possibilities[chosen];
 }
 
 map<string, pair<int, string>> Table::get_best_routes() {

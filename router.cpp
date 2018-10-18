@@ -165,7 +165,7 @@ class Router {
 			dequotize(dest_ip);
 			catHop(data, this->ip);
 			if(dest_ip == this->ip) {
-				send_data_msg(map2Json(data), source_ip);
+				send_data_msg(escape(map2Json(data)), source_ip);
 			}
 			else {
 				send_indirect_msg(map2Json(data), dest_ip);
@@ -273,7 +273,12 @@ class Router {
 
 		void send_indirect_msg(const string &msg, const string &ip) {
 			string neighbour_ip = table.get_first_step(ip);
-			this->send_msg(msg, neighbour_ip);
+			if(neighbour_ip == "") {
+				cerr << "Unable to send message to " << ip << endl;
+			}
+			else {
+				this->send_msg(msg, neighbour_ip);
+			}
 		}
 };
 

@@ -43,4 +43,6 @@ string make_trace_msg(string source, string dest);
 
 void dequotize(string &s);
 
+string escape(const string &s);
+
 #endif
