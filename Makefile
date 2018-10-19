@@ -4,8 +4,8 @@ BIN=./bin
 
 
 
-all:	prep	router.o	tools.o table.o
-		$(CC)	$(BIN)/router.o	$(BIN)/tools.o	$(BIN)/table.o	-o	router	$(ROUTER_FLAGS)
+all:	prep	router.o	tools.o table.o	route.o
+		$(CC)	$(BIN)/router.o	$(BIN)/tools.o	$(BIN)/table.o	$(BIN)/route.o	-o	router	$(ROUTER_FLAGS)
 
 prep:
 		mkdir	-p	$(BIN)
@@ -18,6 +18,9 @@ tools.o:
 
 table.o:
 	$(CC)	-c	table.cpp	-o	$(BIN)/table.o	$(ROUTER_FLAGS)
+
+route.o:
+	$(CC)	-c	route.cpp	-o	$(BIN)/route.o	$(ROUTER_FLAGS)
 
 clean:
 	rm	-f	router

@@ -30,7 +30,6 @@ void Table::remove_routes(string ip) {
       }
     }
   }
-
 }
 
 void Table::del_edge(string ip) {
@@ -62,7 +61,6 @@ vector<pair<string, string>> Table::get_routes_best_weights() {
 }
 
 void Table::add_route(string dest_ip, string source_ip, int weight) {
-  // find a better name
 	if(!neighbours_router_weight.count(source_ip)) {
 		cerr << "Trying to add route from non-neighbour address\n";
 		return;
@@ -80,6 +78,28 @@ void Table::add_route(string dest_ip, string source_ip, int weight) {
     set<pair<int, string>> routes;
     routes.insert( pair<int, string>(weight, source_ip) ); 
     this->known_routes[dest_ip] = routes;
+		//this->distances[dest_ip] = weight;
+  }
+}
+
+void Table::add_route_(string dest_ip, string source_ip, int weight) {
+	if(!neighbours_router_weight.count(source_ip)) {
+		cerr << "Trying to add route from non-neighbour address\n";
+		return;
+	}
+	weight += neighbours_router_weight[source_ip];
+  auto target_ip = this->known_routes_.find(dest_ip);
+
+  if(source_ip == this->router_ip)
+    source_ip = dest_ip;
+
+  if(target_ip != this->known_routes_.end()) {
+    target_ip->second.insert(Route(weight, dest_ip, source_ip));
+  }
+  else {
+    set<class Route, route_compare> routes;
+    routes.insert(Route(weight, dest_ip, source_ip));
+    this->known_routes_[dest_ip] = routes;
 		//this->distances[dest_ip] = weight;
   }
 }

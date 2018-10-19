@@ -1,6 +1,17 @@
 #ifndef TABLE_H
 #define TABLE_H
 #include <bits/stdc++.h>
+#include "route.h"
+
+
+struct route_compare {
+  bool operator() (const class Route& a, const class Route& b) const {
+    int a_w = a.weight;
+    int b_w = b.weight;
+    return a_w < b_w;
+  }
+};
+
 using namespace std;
 class Table {
   public:
@@ -25,6 +36,8 @@ class Table {
     
 		void add_route(string dest_ip, string source_ip, int weight);
 
+    void add_route_(string dest_ip, string source_ip, int weight);
+
 		string get_first_step(string dest_ip);
 
     map<string, pair<int, string>> get_best_routes();
@@ -39,6 +52,7 @@ class Table {
     map<string, int> neighbours_router_weight;
     // source -> [(weight, neighbour), ...]
     map<string, set<pair<int, string>>> known_routes;
+    map<string, set<class Route, route_compare>> known_routes_;
     // ip -> weight
     map<string, string> distances;
 
