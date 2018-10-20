@@ -70,7 +70,12 @@ void Table::add_route(string dest_ip, string source_ip, int weight) {
     source_ip = dest_ip;
 
   if(target_ip != this->known_routes.end()) {
-    target_ip->second.insert(Route(weight, dest_ip, source_ip));
+    set<Route, route_compare>& routes = target_ip->second;
+    Route new_route = Route(weight, dest_ip, source_ip);
+    auto route = routes.find(new_route);
+    if(route != routes.end())
+      routes.erase(route);
+    routes.insert(new_route);
   }
   else {
     set<Route, route_compare> routes;

@@ -112,9 +112,17 @@ class Router {
       }
       else if(op_type == "routes") {
         for(auto it : this->table.get_best_routes()) {
-          cout << "To: " << it.first << endl;
-          cout << "    From: " << it.second.get_neighbour() << endl;
-          cout << "    With cost: " << it.second.get_weight() << endl;
+          string target_ip = it.first;
+          string neigh_ip  = it.second.get_neighbour();
+          int cost = it.second.get_weight();
+          cout << "To: " << target_ip << endl;
+          cout << "    From: " << neigh_ip << endl;
+          cout << "    With cost: " << cost << endl;
+          cout << "    Time: ";
+          struct timespec time_ = it.second.get_time();
+          static char buff[100];
+          strftime(buff, sizeof(buff), "%D %T", gmtime(&time_.tv_sec));
+          cout << buff << endl;
         }
       }
 			else {

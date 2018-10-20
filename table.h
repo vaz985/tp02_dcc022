@@ -8,7 +8,10 @@ struct route_compare {
   bool operator() (const class Route& a, const class Route& b) const {
     int a_w = a.weight;
     int b_w = b.weight;
-    return a_w < b_w;
+    if(a_w != b_w)
+      return a_w < b_w;
+    string a_n = a.get_neighbour(), b_n = b.get_neighbour();
+    return a_n < b_n;
   }
 };
 
@@ -62,7 +65,6 @@ class Table {
     map<string, set<Route, route_compare>> get_routes() {
       return this->known_routes;
     };
-
 
     void remove_source_route(string ip) {
       this->known_routes.erase(ip);  
