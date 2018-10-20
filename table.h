@@ -34,13 +34,11 @@ class Table {
       this->router_ip = ip;
     }
     
-		void add_route(string dest_ip, string source_ip, int weight);
-
-    void add_route_(string dest_ip, string source_ip, int weight);
+    void add_route(string dest_ip, string source_ip, int weight);
 
 		string get_first_step(string dest_ip);
 
-    map<string, pair<int, string>> get_best_routes();
+    map<string, Route> get_best_routes();
 
     bool is_neighbour(string ip) {
       return (this->neighbours_ip.find(ip)!=this->neighbours_ip.end()) ? true : false;
@@ -51,8 +49,7 @@ class Table {
     // neighbour -> weight
     map<string, int> neighbours_router_weight;
     // source -> [(weight, neighbour), ...]
-    map<string, set<pair<int, string>>> known_routes;
-    map<string, set<class Route, route_compare>> known_routes_;
+    map<string, set<Route, route_compare>> known_routes;
     // ip -> weight
     map<string, string> distances;
 
@@ -62,7 +59,7 @@ class Table {
       return this->neighbours_router_weight;
     };
 
-    map<string, set<pair<int, string>>> get_routes() {
+    map<string, set<Route, route_compare>> get_routes() {
       return this->known_routes;
     };
 

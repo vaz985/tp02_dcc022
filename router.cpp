@@ -113,8 +113,8 @@ class Router {
       else if(op_type == "routes") {
         for(auto it : this->table.get_best_routes()) {
           cout << "To: " << it.first << endl;
-          cout << "    From: " << it.second.second << endl;
-          cout << "    With cost: " << it.second.first << endl;
+          cout << "    From: " << it.second.get_neighbour() << endl;
+          cout << "    With cost: " << it.second.get_weight() << endl;
         }
       }
 			else {

@@ -22,7 +22,7 @@ void Table::remove_routes(string ip) {
     else {
       auto route_set =  e.second;
       for(auto route_set_it : route_set) {
-        if(route_set_it.second == ip) {
+        if(route_set_it.get_target() == ip) {
           route_set.erase(route_set_it);
         }
         if(route_set.empty())
@@ -50,12 +50,10 @@ void Table::update_distance_list() {
 vector<pair<string, string>> Table::get_routes_best_weights() {
   vector<pair<string, string>> best_weights;
   for(auto it : this->known_routes) {
-    string ip = it.first;
-    set<pair<int, string>> &ip_known_routes = it.second;
-    int best_weight = ip_known_routes.begin()->first;
-
-    pair<string, string> route(ip, to_string(best_weight));
-    best_weights.push_back(route);
+    const string& ip = it.first;
+    set<Route, route_compare>& routes = it.second;
+    Route best_route = *routes.begin();
+    best_weights.push_back( make_pair(ip, to_string(best_route.get_weight())) );
   }
   return best_weights;
 }
@@ -72,35 +70,12 @@ void Table::add_route(string dest_ip, string source_ip, int weight) {
     source_ip = dest_ip;
 
   if(target_ip != this->known_routes.end()) {
-    target_ip->second.insert( pair<int, string>(weight, source_ip) );
-  }
-  else {
-    set<pair<int, string>> routes;
-    routes.insert( pair<int, string>(weight, source_ip) ); 
-    this->known_routes[dest_ip] = routes;
-		//this->distances[dest_ip] = weight;
-  }
-}
-
-void Table::add_route_(string dest_ip, string source_ip, int weight) {
-	if(!neighbours_router_weight.count(source_ip)) {
-		cerr << "Trying to add route from non-neighbour address\n";
-		return;
-	}
-	weight += neighbours_router_weight[source_ip];
-  auto target_ip = this->known_routes_.find(dest_ip);
-
-  if(source_ip == this->router_ip)
-    source_ip = dest_ip;
-
-  if(target_ip != this->known_routes_.end()) {
     target_ip->second.insert(Route(weight, dest_ip, source_ip));
   }
   else {
-    set<class Route, route_compare> routes;
+    set<Route, route_compare> routes;
     routes.insert(Route(weight, dest_ip, source_ip));
-    this->known_routes_[dest_ip] = routes;
-		//this->distances[dest_ip] = weight;
+    this->known_routes[dest_ip] = routes;
   }
 }
 
@@ -112,11 +87,11 @@ string Table::get_first_step(string dest_ip) {
 	
 	auto &ip_known_routes = this->known_routes[dest_ip];
 	auto best_route = ip_known_routes.begin();
-	int weight = best_route->first;
+	int weight = best_route->get_weight();
 	
 	vector<string> possibilities;
-	while(best_route != ip_known_routes.end() and best_route->first == weight) {
-		possibilities.push_back(best_route->second);
+	while(best_route != ip_known_routes.end() and best_route->get_weight() == weight) {
+		possibilities.push_back(best_route->get_neighbour());
 		best_route++;
 	}
 	assert(possibilities.size());
@@ -127,13 +102,13 @@ string Table::get_first_step(string dest_ip) {
 	return possibilities[chosen];
 }
 
-map<string, pair<int, string>> Table::get_best_routes() {
-  map<string, pair<int, string>> data;
+map<string, Route> Table::get_best_routes() {
+  map<string, Route> data;
   for(auto it : this->known_routes) {
-    string ip = it.first;
-    set<pair<int, string>> &ip_known_routes = it.second;
-    pair<int, string> route = *ip_known_routes.begin();
-    data[ip] = route;
+    const string& ip = it.first;
+    set<Route, route_compare>& routes = it.second;
+    Route r = *routes.begin();
+    data.insert( make_pair(ip, r) );
   }
   return data;
 }
