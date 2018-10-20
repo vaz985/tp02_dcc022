@@ -25,6 +25,14 @@ class Route {
     string get_neighbour() const {
       return this->neighbour_ip;
     }
+    
+    void update_time() {
+      clock_gettime(CLOCK_REALTIME, &this->last_update);
+    }
+
+    struct timespec get_time() {
+      return this->last_update;
+    }
 };
 
 
