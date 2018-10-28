@@ -12,9 +12,9 @@ void Table::add_edge(string ip, int weight) {
 }
 
 void Table::remove_routes(string ip) {
-  auto n_weight = this->get_neighbours_weight();
-  if(!n_weight.count(ip))
+  if(this->neighbours_router_weight.count(ip))
     this->neighbours_router_weight.erase(ip);
+
   auto k_routes = this->get_routes();
   for(auto e : k_routes) {
     if(e.first == ip)
@@ -51,7 +51,7 @@ vector<pair<string, string>> Table::get_routes_best_weights() {
   vector<pair<string, string>> best_weights;
   for(auto it : this->known_routes) {
     const string& ip = it.first;
-    set<Route, route_compare>& routes = it.second;
+    set<Route>& routes = it.second;
     Route best_route = *routes.begin();
     best_weights.push_back( make_pair(ip, to_string(best_route.get_weight())) );
   }
@@ -70,7 +70,7 @@ void Table::add_route(string dest_ip, string source_ip, int weight) {
     source_ip = dest_ip;
 
   if(target_ip != this->known_routes.end()) {
-    set<Route, route_compare>& routes = target_ip->second;
+    set<Route>& routes = target_ip->second;
     Route new_route = Route(weight, dest_ip, source_ip);
     auto route = routes.find(new_route);
     if(route != routes.end())
@@ -78,7 +78,7 @@ void Table::add_route(string dest_ip, string source_ip, int weight) {
     routes.insert(new_route);
   }
   else {
-    set<Route, route_compare> routes;
+    set<Route> routes;
     routes.insert(Route(weight, dest_ip, source_ip));
     this->known_routes[dest_ip] = routes;
   }
@@ -111,9 +111,10 @@ map<string, Route> Table::get_best_routes() {
   map<string, Route> data;
   for(auto it : this->known_routes) {
     const string& ip = it.first;
-    set<Route, route_compare>& routes = it.second;
+    set<Route>& routes = it.second;
     Route r = *routes.begin();
     data.insert( make_pair(ip, r) );
+    cout << routes.size() << endl;
   }
   return data;
 }

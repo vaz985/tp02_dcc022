@@ -3,18 +3,6 @@
 #include <bits/stdc++.h>
 #include "route.h"
 
-
-struct route_compare {
-  bool operator() (const class Route& a, const class Route& b) const {
-    int a_w = a.weight;
-    int b_w = b.weight;
-    if(a_w != b_w)
-      return a_w < b_w;
-    string a_n = a.get_neighbour(), b_n = b.get_neighbour();
-    return a_n < b_n;
-  }
-};
-
 using namespace std;
 class Table {
   public:
@@ -47,12 +35,18 @@ class Table {
       return (this->neighbours_ip.find(ip)!=this->neighbours_ip.end()) ? true : false;
     }
 
+    map<string, set<Route>> get_routes() {
+      return this->known_routes;
+    }
+      
+
+
   private:
     set<string> neighbours_ip;
     // neighbour -> weight
     map<string, int> neighbours_router_weight;
     // source -> [(weight, neighbour), ...]
-    map<string, set<Route, route_compare>> known_routes;
+    map<string, set<Route>> known_routes;
     // ip -> weight
     map<string, string> distances;
 
@@ -62,9 +56,6 @@ class Table {
       return this->neighbours_router_weight;
     };
 
-    map<string, set<Route, route_compare>> get_routes() {
-      return this->known_routes;
-    };
 
     void remove_source_route(string ip) {
       this->known_routes.erase(ip);  
