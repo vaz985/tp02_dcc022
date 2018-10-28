@@ -125,6 +125,22 @@ class Router {
           cout << buff << endl;
         }
       }
+      else if(op_type == "allroutes") {
+        for(auto it : this->table.get_routes()) {
+          const string& target_ip = it.first;
+          set<Route>& routes = it.second;
+          cout << "To: " << target_ip << endl;
+          for(auto r : routes) {
+            cout << "    From: " << r.get_neighbour() << endl;
+            cout << "    With cost: " << r.get_weight() << endl;
+            cout << "    Time: ";
+            struct timespec time_ = r.get_time();
+            static char buff[100];
+            strftime(buff, sizeof(buff), "%D %T", gmtime(&time_.tv_sec));
+            cout << buff << endl;
+          }
+        }
+      }
 			else {
 				cerr << op_type << " is not a valid operation.\n";
 			}
