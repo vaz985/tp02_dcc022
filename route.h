@@ -10,6 +10,8 @@ class Route {
     string target_ip, neighbour_ip;
     struct timespec last_update;
 
+  bool operator< (const class Route& rhs) const;
+
     Route(int weight, string target_ip, string neighbour_ip);
 
     Route(const Route& r);
