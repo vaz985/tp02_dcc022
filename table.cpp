@@ -140,6 +140,7 @@ map<string, string> Table::get_distances(string dest_ip) {
 	map<string, string> split_horizon;
 	for(auto it : this->known_routes) {
     const string& ip = it.first;
+		if(ip == dest_ip) continue;
     set<Route>& routes = it.second;
     auto cur_route = routes.begin();
 		int best_weight = cur_route->weight;
