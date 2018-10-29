@@ -32,7 +32,7 @@ class Route {
       clock_gettime(CLOCK_REALTIME, &this->last_update);
     }
 
-    struct timespec get_time() {
+    struct timespec get_time() const {
       return this->last_update;
     }
 };

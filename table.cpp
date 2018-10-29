@@ -12,32 +12,28 @@ void Table::add_edge(string ip, int weight) {
 }
 
 void Table::remove_routes(string ip) {
-  if(this->neighbours_router_weight.count(ip))
-    this->neighbours_router_weight.erase(ip);
-
-  auto k_routes = this->get_routes();
-  for(auto e : k_routes) {
-    if(e.first == ip)
-      this->remove_source_route(ip);
-    else {
-      auto route_set =  e.second;
-      for(auto route_set_it : route_set) {
-        if(route_set_it.get_target() == ip) {
-          route_set.erase(route_set_it);
-        }
-        if(route_set.empty())
-          this->remove_source_route(e.first);
+  for(auto& it : this->known_routes) {
+    const string& target_ip = it.first;
+    set<Route>& routes      = it.second;
+    for(auto& route : routes) {
+      if(route.get_neighbour() == ip) {
+        routes.erase(route);
       }
+    }
+    if(routes.empty()) {
+      this->known_routes.erase(target_ip);
     }
   }
 }
 
 void Table::del_edge(string ip) {
-  if(!neighbours_router_weight.count(ip)) {
+  if(!this->neighbours_router_weight.count(ip)) {
     cerr << "Trying to delete non-existent ip " << ip << endl;
-    exit(1);
+    return;
+    //exit(1);
   }
-  neighbours_router_weight.erase(ip);
+  this->neighbours_ip.erase(ip);
+  this->neighbours_router_weight.erase(ip);
   this->remove_routes(ip);
 }
 
@@ -60,7 +56,7 @@ vector<pair<string, string>> Table::get_routes_best_weights() {
 
 void Table::add_route(string dest_ip, string source_ip, int weight) {
 	if(!neighbours_router_weight.count(source_ip)) {
-		cerr << "Trying to add route from non-neighbour address\n";
+		cerr << "Trying to add route from non-neighbour address(" << source_ip << ")\n";
 		return;
 	}
 	weight += neighbours_router_weight[source_ip];
@@ -117,4 +113,27 @@ map<string, Route> Table::get_best_routes() {
     cout << routes.size() << endl;
   }
   return data;
+}
+
+void Table::check_times(int period) {
+  cout << "Checking" << endl;
+  struct timespec cur_time;
+  clock_gettime(CLOCK_REALTIME, &cur_time);
+  for(auto it : this->known_routes) {
+    const string& target_ip = it.first;
+    set<Route>& routes      = it.second;
+    for(auto& route : routes) {
+      if(route.get_neighbour() == this->router_ip) continue;
+      if(cur_time.tv_sec - route.get_time().tv_sec > period) {
+        cout << "Deletando..." << endl;
+        cout << "To:   " << target_ip << endl;
+        cout << "Next: " << route.get_neighbour() << endl;
+        routes.erase(route);
+      }
+    }
+
+    if(routes.empty())
+      this->known_routes.erase(target_ip);
+  }
+  this->update_distance_list();
 }

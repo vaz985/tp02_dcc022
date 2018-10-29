@@ -38,6 +38,8 @@ class Table {
     map<string, set<Route>> get_routes() {
       return this->known_routes;
     }
+
+    void check_times(int period);
       
 
 
