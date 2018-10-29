@@ -134,3 +134,24 @@ void Table::check_times(int period) {
       this->known_routes.erase(target_ip);
   }
 }
+
+map<string, string> Table::get_distances(string dest_ip) {
+	this->update_distance_list();
+	map<string, string> split_horizon;
+	for(auto it : this->known_routes) {
+    const string& ip = it.first;
+    set<Route>& routes = it.second;
+    auto cur_route = routes.begin();
+		int best_weight = cur_route->weight;
+		bool no_send = false;
+		while(cur_route != routes.end() and cur_route->weight == best_weight) {
+			if(cur_route->neighbour_ip == dest_ip) {
+				no_send = true;
+				break;
+			}
+		}
+		if(no_send) continue;
+		split_horizon[ip] = to_string(best_weight);	
+	}
+	return split_horizon;
+}

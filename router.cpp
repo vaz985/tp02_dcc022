@@ -156,9 +156,9 @@ class Router {
 		}
 
     void send_update_msg() {
-      map<string, string> distances = table.get_distances();
       set<string> destination_ip = table.get_neighbours();
       for(auto dest_ip : destination_ip) {
+      	map<string, string> distances = table.get_distances(dest_ip);
         if(dest_ip == this->ip) continue;
         //cout << dest_ip << endl;
         string json_msg = make_update_msg(this->ip, dest_ip, distances);

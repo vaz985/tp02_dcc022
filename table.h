@@ -16,10 +16,7 @@ class Table {
       return this->neighbours_ip;
     }
 
-    map<string, string> get_distances() {
-      this->update_distance_list();
-      return this->distances;
-    }
+    map<string, string> get_distances(string dest_ip = "");
 
     void set_my_ip(string ip) {
       this->router_ip = ip;
