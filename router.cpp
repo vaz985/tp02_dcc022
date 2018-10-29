@@ -34,6 +34,10 @@ class Router {
       this->setup_socket();
     };
 
+    int get_period() {
+      return this->period;
+    }
+
     Router(int argc, char* argv[]) {
       string addr_cmd    = "--addr";
       string upd_cmd     = "--update-period";
@@ -226,6 +230,10 @@ class Router {
 			}
 		}
 
+    void erase_expired_routes() {
+      this->table.check_times(4*this->period);
+    }
+
   private:
     static map<string, string> parse_args(vector<string> &args) {
       string addr_cmd    = "--addr";
@@ -304,6 +312,7 @@ class Router {
 				this->send_msg(msg, neighbour_ip);
 			}
 		}
+
 };
 
 void IO_handler(Router &r) {
@@ -318,11 +327,15 @@ int main(int argc, char* argv[]) {
 	
 	thread t1(IO_handler, ref(r));
   string s;
-  int count = 0;
+  struct timespec last;
+  clock_gettime(CLOCK_REALTIME, &last);
   while(1) {
-    if(count++ == 20) {
+    struct timespec cur_time;
+    clock_gettime(CLOCK_REALTIME, &cur_time);
+    if(cur_time.tv_sec - last.tv_sec > r.get_period()) {
       r.send_update_msg();
-      count = 0;
+      r.erase_expired_routes();
+      clock_gettime(CLOCK_REALTIME, &last);
     }
 		s = recvMsg(r.udp_socket);
 		if(s.size()) r.handle_msg(s);
