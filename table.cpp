@@ -119,15 +119,13 @@ void Table::check_times(int period) {
   cout << "Checking" << endl;
   struct timespec cur_time;
   clock_gettime(CLOCK_REALTIME, &cur_time);
-  for(auto it : this->known_routes) {
+  for(auto& it : this->known_routes) {
     const string& target_ip = it.first;
     set<Route>& routes      = it.second;
     for(auto& route : routes) {
       if(route.get_neighbour() == this->router_ip) continue;
       if(cur_time.tv_sec - route.get_time().tv_sec > period) {
-        cout << "Deletando..." << endl;
-        cout << "To:   " << target_ip << endl;
-        cout << "Next: " << route.get_neighbour() << endl;
+        cerr << "Erasing.." << endl;
         routes.erase(route);
       }
     }
@@ -135,5 +133,4 @@ void Table::check_times(int period) {
     if(routes.empty())
       this->known_routes.erase(target_ip);
   }
-  this->update_distance_list();
 }
