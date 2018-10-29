@@ -116,7 +116,7 @@ map<string, Route> Table::get_best_routes() {
 }
 
 void Table::check_times(int period) {
-  cout << "Checking" << endl;
+  //cout << "Checking" << endl;
   struct timespec cur_time;
   clock_gettime(CLOCK_REALTIME, &cur_time);
   for(auto& it : this->known_routes) {
@@ -125,7 +125,7 @@ void Table::check_times(int period) {
     for(auto& route : routes) {
       if(route.get_neighbour() == this->router_ip) continue;
       if(cur_time.tv_sec - route.get_time().tv_sec > period) {
-        cerr << "Erasing.." << endl;
+        //cerr << "Erasing.." << endl;
         routes.erase(route);
       }
     }
@@ -150,6 +150,7 @@ map<string, string> Table::get_distances(string dest_ip) {
 				no_send = true;
 				break;
 			}
+			cur_route++;
 		}
 		if(no_send) continue;
 		split_horizon[ip] = to_string(best_weight);	

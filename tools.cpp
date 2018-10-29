@@ -79,8 +79,7 @@ map<string, string> json2Map(string input) {
 }
 
 string map2Json(const map<string, string> &data) {
-	string json;
-	json += "{";
+	string json = "{";
 	for(auto p : data) {
 		json += "\n\t\"";
 		json += p.first;
